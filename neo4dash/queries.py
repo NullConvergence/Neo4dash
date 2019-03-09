@@ -11,10 +11,10 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""This module is an interface to the database.
-In this case the db is a Neo4J."""
+"""This module holds queries that can not be formulated
+with py2neo objects."""
 
 from neo4dash.singleton import Singleton
 
 class Queries(metaclass=Singleton):
-  ALL = "MATCH (n) RETURN n"
+  pass

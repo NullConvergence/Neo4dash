@@ -18,8 +18,7 @@ from neo4dash.singleton import Singleton
 from neo4dash.constants import Constants
 from neo4dash.logger import Logger
 from neo4dash.queries import Queries
-
-from py2neo import Graph
+from py2neo import Graph, NodeMatcher, RelationshipMatcher
 
 CT = Constants()
 LG = Logger()
@@ -41,7 +40,16 @@ class Database(metaclass=Singleton):
     Graph object with the connection
     :returns: py2neo Graph object
     """
-    return Graph(host=CT.DB_URL, user=CT.DB_USER, password=CT.DB_PWD, http_port=CT.PORT)
+    graph = Graph(host=CT.DB_URL, user=CT.DB_USER, password=CT.DB_PWD, http_port=CT.PORT)
+    self._set_matchers(graph)
+    return graph
+
+  def _set_matchers(self, graph):
+    """Sets the node an relationship matchers
+    :param graph: py2neo graph
+    """
+    self.node_matcher = NodeMatcher(graph)
+    self.rel_matcher = RelationshipMatcher(graph)
 
   def check_self(self):
     """Checks if there is a graph object and, if not,
@@ -55,29 +63,101 @@ class Database(metaclass=Singleton):
     else:
       pass
 
-  def get_all_data(self):
+  def get_all_data(self, merge=False):
     """Returns the nodes and the relationships from
     Neo4j
-    :returns:
+    :param merge: Concatenates nodes an relationships
+    :returns: if merge is False it retunrns a tuple with two
+      arrays: the first with nodes, the second with relationships
+      if merge is True it returns only one array
     """
     self.check_self()
-    res = self.graph.run(QR.ALL).data()
-    nodes = [self._map_node(n['n']) for n in res if 'n' in n]
-    relationships = []
-    return nodes, relationships
+    nodes = self.node_matcher.match()
+    nodes = [self._map_node(n) for n in nodes]
+    # add position - this is dependent on the view and the layeout
+    # you choose
+    # nodes = self._position_nodes(nodes)
+
+    rels = self.rel_matcher.match()
+    rels = [self._map_rels(r) for r in rels]
+
+    if merge is False:
+      return nodes, rels
+    else:
+      return nodes+rels
 
   def _map_node(self, node):
     """Maps Neo4j Node to UI element
     :param node: dictionary with node elements
-    :returns: dictionary with ui details
+    :returns: dictionary with UI details
     """
     return {
       'data':{
-        'id': node['hash'] if 'hash' in node else node['name'],
-        'label': node['name']
+        'id': self._get_id(node),
+        'label': self._get_label(node),
+        'type': list(node._labels)[0],
+        'name': node['name']
       }
     }
 
+  def _position_nodes(self, nodes):
+    """Adds position to nodes
+    :param nodes: array of dicts
+    :returns: array of dicts with new position key
+    """
+    years = [x for x in nodes if x['data']['type'] == 'Year']
+    sorted_years = sorted(years, key=lambda k: k['data']['name'])
+    # arrange years from left to right
+    for index, year in enumerate(sorted_years):
+      year['position'] = {'x': 20*index, 'y': 50}
+    # replace years in nodes
+    nodes = self._replace_by_id(nodes, sorted_years)
+    return nodes
+
+  def _replace_by_id(self, first_array, second_array):
+    """Replaces the elements from the first array with elements
+    from the second array matching them by id
+    :param first_array: larger array
+    :param second_array: smaller array
+    :returns: array
+    """
+    for second in second_array:
+      for first in first_array:
+        if first['data']['id'] == second['data']['id']:
+          first = second
+    return first_array
+
+
   def _map_rels(self, rel):
-    """Maps relationship:"""
-    pass
+    """Maps Neo4j Relationship to UI element
+    :param rel: Neo4j relationship
+    :returns: dictionary with UI details
+    """
+    return {
+      'data': {
+        'source': self._get_id(rel.start_node),
+        'target': self._get_id(rel.end_node),
+        'label': list(rel.labels)[0],
+        'id': rel.identity
+      }
+    }
+
+  def _get_id(self, node):
+    """Returns node identity
+    :param node: Py2neo Node object
+    :returns: string
+    """
+    # return node['hash'] if 'hash' in node else node['name']
+    return node.identity
+
+  def _get_label(self, node):
+    """Returns a node UI label
+    :param node: Py2neo Node object
+    :returns: string
+    """
+    return node['name'] if node['name'] else node['hash']
+
+
+  def _get_unique(self, list, key='id'):
+    """Returns the unique elemnts of a list of dicts"""
+    return list({v['data'][key]:v for v in list}.values())

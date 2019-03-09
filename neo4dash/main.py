@@ -19,19 +19,18 @@ from neo4dash.db import Database
 
 app = dash.Dash(__name__)
 
-# data muggling
 DB = Database()
-nodes, rel = DB.get_all_data()
+data = DB.get_all_data(merge=True)
 
 
 def build_layout():
   """Builds the view from the Neo4j data"""
   app.layout = html.Div([
       cyto.Cytoscape(
-          id='cytoscape-two-nodes',
-          layout={'name': 'preset'},
+          id='neo4graph',
+          layout={'name': 'grid'},
           style={'width': '100%', 'height': '400px'},
-          elements=nodes
+          elements=data
       )
   ])
 
