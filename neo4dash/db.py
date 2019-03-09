@@ -15,12 +15,11 @@
 In this case the db is a Neo4J."""
 
 from neo4dash.singleton import Singleton
-from neo4dash.constants import Constants
+from neo4dash.config import Config
 from neo4dash.logger import Logger
 from neo4dash.queries import Queries
 from py2neo import Graph, NodeMatcher, RelationshipMatcher
 
-CT = Constants()
 LG = Logger()
 QR = Queries()
 
@@ -28,7 +27,18 @@ QR = Queries()
 class Database(metaclass=Singleton):
   def __init__(self, *args, **kwargs):
     """Instantiates a database object"""
+    self.config = Config()
+
+  def configure(self, db_url="localhost",
+                port=13000, db_user="neo4j",
+                db_pwd="neo4j"):
+    """Sets the application constants and connects to db"""
     try:
+        # TODO: validate inputs
+      self.config.DB_URL = db_url
+      self.config.PORT = port
+      self.config.DB_USER = db_user
+      self.config.DB_PWD = db_pwd
       self.graph = self._connect()
     except Exception as e:
       LG.log_and_raise(e)
@@ -40,7 +50,9 @@ class Database(metaclass=Singleton):
     Graph object with the connection
     :returns: py2neo Graph object
     """
-    graph = Graph(host=CT.DB_URL, user=CT.DB_USER, password=CT.DB_PWD, http_port=CT.PORT)
+    self.config.check_config()
+    graph = Graph(host=self.config.DB_URL, user=self.config.DB_USER,
+      password=self.config.DB_PWD, http_port=self.config.PORT)
     self._set_matchers(graph)
     return graph
 
