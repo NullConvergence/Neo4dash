@@ -32,10 +32,10 @@ app = dash.Dash(__name__)
 
 db = Database()
 db.configure(
-      db_url=DB_URL,
-      port=PORT,
-      db_user=DB_USER,
-      db_pwd=DB_PWD,
+    db_url=DB_URL,
+    port=PORT,
+    db_user=DB_USER,
+    db_pwd=DB_PWD,
 )
 data = db.get_all_data(merge=True)
 
@@ -50,23 +50,23 @@ styles = {
 
 app.layout = html.Div([
     html.Div(className='eight columns', children=[
-       dcc.Dropdown(
-        id='dropdown-update-layout',
-        value='grid',
-        clearable=False,
-        options=[
-            {'label': name.capitalize(), 'value': name}
-            for name in ['grid', 'random', 'circle', 'cose', 'concentric']
-      ]),
+        dcc.Dropdown(
+            id='dropdown-update-layout',
+            value='grid',
+            clearable=False,
+            options=[
+                {'label': name.capitalize(), 'value': name}
+                for name in ['grid', 'random', 'circle', 'cose', 'concentric']
+            ]),
         cyto.Cytoscape(
-        id='cytoscape',
-        layout={'name': 'grid'},
-        elements=data,
-        style={
-          'height': '60vh',
-          'width': '100%'
-        },
-    )
+            id='cytoscape',
+            layout={'name': 'grid'},
+            elements=data,
+            style={
+                'height': '60vh',
+                'width': '100%'
+            },
+        )
     ]),
 
     html.Div(className='four columns', children=[
@@ -148,43 +148,43 @@ def update_layout(layout):
 @app.callback(Output('tap-node-json-output', 'children'),
               [Input('cytoscape', 'tapNode')])
 def displayTapNode(data):
-    return json.dumps(data, indent=2)
+  return json.dumps(data, indent=2)
 
 
 @app.callback(Output('tap-edge-json-output', 'children'),
               [Input('cytoscape', 'tapEdge')])
 def displayTapEdge(data):
-    return json.dumps(data, indent=2)
+  return json.dumps(data, indent=2)
 
 
 @app.callback(Output('tap-node-data-json-output', 'children'),
               [Input('cytoscape', 'tapNodeData')])
 def displayTapNodeData(data):
-    return json.dumps(data, indent=2)
+  return json.dumps(data, indent=2)
 
 
 @app.callback(Output('tap-edge-data-json-output', 'children'),
               [Input('cytoscape', 'tapEdgeData')])
 def displayTapEdgeData(data):
-    return json.dumps(data, indent=2)
+  return json.dumps(data, indent=2)
 
 
 @app.callback(Output('mouseover-node-data-json-output', 'children'),
               [Input('cytoscape', 'mouseoverNodeData')])
 def displayMouseoverNodeData(data):
-    return json.dumps(data, indent=2)
+  return json.dumps(data, indent=2)
 
 
 @app.callback(Output('mouseover-edge-data-json-output', 'children'),
               [Input('cytoscape', 'mouseoverEdgeData')])
 def displayMouseoverEdgeData(data):
-    return json.dumps(data, indent=2)
+  return json.dumps(data, indent=2)
 
 
 @app.callback(Output('selected-node-data-json-output', 'children'),
               [Input('cytoscape', 'selectedNodeData')])
 def displaySelectedNodeData(data):
-    return json.dumps(data, indent=2)
+  return json.dumps(data, indent=2)
 
 
 @app.callback(Output('selected-edge-data-json-output', 'children'),

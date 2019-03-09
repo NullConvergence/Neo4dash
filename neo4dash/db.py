@@ -52,7 +52,7 @@ class Database(metaclass=Singleton):
     """
     self.config.check_config()
     graph = Graph(host=self.config.DB_URL, user=self.config.DB_USER,
-      password=self.config.DB_PWD, http_port=self.config.PORT)
+                  password=self.config.DB_PWD, http_port=self.config.PORT)
     self._set_matchers(graph)
     return graph
 
@@ -104,12 +104,12 @@ class Database(metaclass=Singleton):
     :returns: dictionary with UI details
     """
     return {
-      'data':{
-        'id': self._get_id(node),
-        'label': self._get_label(node),
-        'type': list(node._labels)[0],
-        'name': node['name']
-      }
+        'data': {
+            'id': self._get_id(node),
+            'label': self._get_label(node),
+            'type': list(node._labels)[0],
+            'name': node['name']
+        }
     }
 
   def _position_nodes(self, nodes):
@@ -139,19 +139,18 @@ class Database(metaclass=Singleton):
           first = second
     return first_array
 
-
   def _map_rels(self, rel):
     """Maps Neo4j Relationship to UI element
     :param rel: Neo4j relationship
     :returns: dictionary with UI details
     """
     return {
-      'data': {
-        'source': self._get_id(rel.start_node),
-        'target': self._get_id(rel.end_node),
-        'label': list(rel.labels)[0],
-        'id': rel.identity
-      }
+        'data': {
+            'source': self._get_id(rel.start_node),
+            'target': self._get_id(rel.end_node),
+            'label': list(rel.labels)[0],
+            'id': rel.identity
+        }
     }
 
   def _get_id(self, node):
@@ -169,7 +168,6 @@ class Database(metaclass=Singleton):
     """
     return node['name'] if node['name'] else node['hash']
 
-
   def _get_unique(self, list, key='id'):
     """Returns the unique elemnts of a list of dicts"""
-    return list({v['data'][key]:v for v in list}.values())
+    return list({v['data'][key]: v for v in list}.values())
