@@ -11,8 +11,9 @@ Make sure your Docker image is running, then follow these instructions:
 $ git clone https://github.com/NullConvergence/Neo4dash
 $ cd neo4dash/
 $ conda create neo4dash python=3.5
-$ pip3 install requirements.txt
-$ python graphrepo/main.py
+$ conda activate neo4dash
+$ python neo4dash/setup.py
+$ python neo4dash/main.py
 ````
 
 Then access the visualization at [http://localhost:8050](http://localhost:8050).
