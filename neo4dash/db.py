@@ -107,7 +107,7 @@ class Database(metaclass=Singleton):
         'data': {
             'id': self._get_id(node),
             'label': self._get_label(node),
-            'type': list(node._labels)[0],
+            'type': list(node._labels)[0] if len(node._labels) > 0 else "",
             'name': node['name']
         }
     }

@@ -24,7 +24,7 @@ from neo4dash.db import Database
 
 
 DB_URL = 'localhost'
-PORT = 13000
+PORT = 7474
 DB_USER = 'neo4j'
 DB_PWD = 'letmein'
 
